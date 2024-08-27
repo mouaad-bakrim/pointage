@@ -1,0 +1,152 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'css/style1.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+    <title>Curriculum Vitae</title>
+    <link href="{% static 'css/images/App_pointage2.png' %}" rel="icon">
+    <style>
+        body {
+            background-color: white;
+        }
+        html, body {
+            height: 100%; /* Assure que le body occupe toute la hauteur */
+            margin: 0;
+            overflow: hidden; /* Empêche le défilement global */
+        }
+        
+        .btn-download {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 2px 1px;
+            cursor: pointer;
+        }
+        .fichier{
+            color:black;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <ul>
+            <li class="profile">
+                <div>
+                    <img id='ico' src="{% static 'css/images/App_pointage1.png' %}" width="200px">
+                </div>
+            </li>
+            <li>
+                <a href="{% url 'HelloAdmine' %}">
+                    <i class="fas fa-home"></i>
+                    <p>Dashbord</p>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'Pointages' %}">
+                  <i class="fas fa-calendar-day"></i>
+                  <p>Pointages</p>
+                </a>
+               </li>
+            <li>
+                <a href="{% url 'Pointeurs' %}">
+                    <i class="fas fa-users"></i>
+                    <p>Pointeurs</p>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'Departements' %}">
+                    <i class="fas fa-building"></i>
+                    <p>Départements</p>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'Conges' %}">
+                  <i class="fas fa-calendar-check"></i>
+                  <p>Congés</p>
+                </a>
+               </li>
+               <li>
+                <a href="#" class="active">
+                  <i class="fas fa-address-card"></i>
+                  <p>Curriculum vitae</p>
+                </a>
+               </li>
+            <li>
+                <a href="{% url 'Espace_Personnelle' %}">
+                    <i class="fas fa-user"></i>
+                    <p>Espace Personnelle</p>
+                </a>
+            </li>
+            <li class="log-out">
+                <a href="{% url 'deconnexion' %}">
+                    <i class="fas fa-sign-out"></i>
+                    <p>Se déconnecter</p>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="table-wrapper">
+        <div class="controls">
+            <!-- Formulaire pour sélectionner le nombre d'éléments à afficher -->
+            <form method="GET" action="{% url 'CVS' %}" class="select-number-form">
+                <label for="number">Afficher:</label>
+                <select id="number" name="number" onchange="this.form.submit()">
+                    <option value="20" {% if request.GET.number == '20' %}selected{% endif %}>20</option>
+                    <option value="50" {% if request.GET.number == '50' %}selected{% endif %}>50</option>
+                    <option value="100" {% if request.GET.number == '100' %}selected{% endif %}>100</option>
+                </select>
+            </form>
+        
+            <!-- Formulaire de recherche -->
+            <form method="GET" action="{% url 'CVS' %}" class="search-form">
+                <input type="text" name="search" placeholder="Chercher par nom" value="{{ request.GET.search }}">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+        
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nom et Prénom</th>
+                    <th>Département</th>
+                    <th>Document</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cv in cvs %}
+                <tr>
+                    <td>{{ cv.nom_prenom }}</td>
+                    <td>{{ cv.departement.nom }}</td>
+                    <td>
+                        {% if cv.document %}
+                            <a href="{{ cv.document.url }}" target="_blank" class="fichier">
+                                {% if cv.document.name|slice:"-4:" == '.pdf' %}
+                                    Fichier
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            Aucun document
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ cv.document.url }}" class="btn-download" download>Télécharger</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">Aucun CV trouvé.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

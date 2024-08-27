@@ -1,0 +1,192 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'css/style1.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/form_ajout.css' %}">
+    <title>Ajouter CV</title>
+    <link href="{% static 'css/images/App_pointage2.png' %}" rel="icon">
+    <style>
+        body {
+            background-color: white;
+            overflow-y: scroll;
+        }
+        html, body {
+            height: 100%; /* Assure que le body occupe toute la hauteur */
+            margin: 0;
+            /*overflow: hidden; /* Empêche le défilement global */
+        }
+        h1 {
+            color: #123;
+        }
+        .ajout{
+         background-color: green;
+         font-size: 16px;
+         margin-top: -30px;
+         margin-right: 10px;
+         float: right;
+         padding: 8px 5px;
+         border-radius: 4px;
+         border: 2px green solid;
+        }
+        .button-icon {
+          /*width: 20px; /* Largeur de l'image */
+          height: 30px; /* Hauteur de l'image */
+          margin-right: 8px; /* Espacement entre l'image et le texte */
+        }
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        .form-row > div {
+            width: 48%; /* Largeur pour chaque champ dans la ligne */
+        }
+        .table-wrapper{
+            height: fit-content;
+            margin-top: 65px;
+        }
+        .error{ color:red;}
+        #sexe{
+          width: 49%; 
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <ul>
+         <li class="profile"> 
+           <div >
+             <img id='ico'  src="{% static 'css/images/App_pointage1.png' %}" width="200px" ></a>
+                   </div>
+          </li>
+          <li>
+           <a href="{% url 'HelloPointeur' %}" >
+             <i class="fas fa-home"></i>
+             <p>Dashbord</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'Employes' %}">
+             <i class="fas fa-users"></i>
+             <p>Employés</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'Pointage_Dep' %}">
+             <i class="fas fa-calendar-day"></i>
+             <p>Pointages</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'Conges_Dep' %}">
+             <i class="fas fa-calendar-check"></i>
+             <p>Congés</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'CVS_Dep' %}">
+             <i class="fas fa-address-card"></i>
+             <p>Curriculum vitae</p>
+           </a>
+          </li>
+          <li>
+           <a href="#" class="active">
+             <i class="fas fa-user"></i>
+             <p>Espace Personnelle</p>
+           </a>
+          </li>
+          <li class="log-out">
+           <a href="{% url 'deconnexion' %}">
+             <i class="fas fa-sign-out"></i>
+             <p> Se déconnecter</p>
+           </a>
+          </li>
+   
+        </ul>
+       </div>
+   <div class="table-wrapper">
+    <h1>Infos Personnelle</h1>
+    <a href="{% url 'Modifier_Mot_passe' %}" class="ajout-link">
+        <button class="ajout">Modifier Mot de passe</button>
+    </a>
+    <hr style="height:2px;border-width:0;color:gray;background-color:gray;margin-top:15px;">
+
+    <!-- Formulaire pour afficher les informations du pointeur -->
+    <form method="post">
+      {% csrf_token %}
+      
+      <!-- Row for nom and prenom -->
+      <div class="form-row">
+          <div>
+              <label for="nom">Nom</label>
+              <input type="text" id="nom" name="nom" value="{{ pointeur.nom }}" readonly>
+          </div>
+          <div>
+              <label for="prenom">Prénom</label>
+              <input type="text" id="prenom" name="prenom" value="{{ pointeur.prenom }}" readonly>
+          </div>
+      </div>
+  
+      <!-- Row for email and telephone -->
+      <div class="form-row">
+          <div>
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" value="{{ pointeur.email }}" readonly>
+          </div>
+          <div>
+              <label for="telephone">Téléphone</label>
+              <input type="text" id="telephone" name="telephone" value="{{ pointeur.telephone }}" readonly>
+          </div>
+      </div>
+  
+      <!-- Row for date of birth and date of hiring -->
+      <div class="form-row">
+          <div>
+              <label for="date_de_naissance">Date de naissance</label>
+              <input type="date" id="date_de_naissance" name="date_de_naissance" value="{{ date_de_naissanc }}" readonly>
+          </div>
+          <div>
+              <label for="date_d_embauche">Date d'embauche</label>
+              <input type="date" id="date_d_embauche" name="date_d_embauche" value="{{ date_d_embauch }}" readonly>
+          </div>
+      </div>
+  
+      <!-- Row for adresse and departement -->
+      <div class="form-row">
+          <div>
+              <label for="adresse">Adresse</label>
+              <input type="text" id="adresse" name="adresse" value="{{ pointeur.adresse }}" readonly>
+          </div>
+          <div>
+              <label for="departement">Département</label>
+              <input type="text" id="departement" name="departement" value="{{ pointeur.departement.nom }}  {{pointeur.departement.site}}" readonly>
+          </div>
+      </div>
+  
+      <!-- Row for cni and cnss -->
+      <div class="form-row">
+          <div>
+              <label for="cni">CNI</label>
+              <input type="text" id="cni" name="cni" value="{{ pointeur.cni }}" readonly>
+          </div>
+          <div>
+              <label for="cnss">CNSS</label>
+              <input type="text" id="cnss" name="cnss" value="{{ pointeur.cnss }}" readonly>
+          </div>
+      </div>
+  
+      <!-- Row for sexe -->
+      <div class="form-row">
+          <div id="sexe">
+              <label for="sexe">Sexe</label>
+              <input type="text" id="sexe" name="sexe" value="{{ pointeur.get_sexe_display }}" readonly>
+          </div>
+      </div>
+  
+  </form>
+</div>
+</body>
+</html>

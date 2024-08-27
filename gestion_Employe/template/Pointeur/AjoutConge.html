@@ -1,0 +1,143 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'css/style1.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/form_ajout.css' %}">
+    <title>Ajouter Congé</title>
+    <link href="{% static 'css/images/App_pointage2.png' %}" rel="icon">
+    <style>
+        body {
+            background-color: white;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+        h1 {
+            color: #123;
+        }
+        .ajout {
+            background-color: transparent;
+            font-size: 16px;
+            margin-top: -30px;
+            margin-right: 10px;
+            float: right; 
+        }
+        .button-icon {
+            height: 30px;
+            margin-right: 8px;
+        }
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0px;
+            margin-top: 6px;
+            width: 50%;
+        }
+        .table-wrapper {
+          height: 430px; /* Définir une hauteur fixe pour activer la scrollbar */
+          margin-top: 70px;
+          overflow-y: auto; /* Ajouter la barre de défilement verticale */
+        }
+        .error {
+            color: red;
+        }
+        input , select {
+            margin-top: -13px;
+            margin-left: 0px;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <ul>
+         <li class="profile"> 
+           <div >
+             <img id='ico'  src="{% static 'css/images/App_pointage1.png' %}" width="200px" ></a>
+                   </div>
+          </li>
+          <li>
+           <a href="{% url 'HelloPointeur' %}">
+             <i class="fas fa-home"></i>
+             <p>Dashbord</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'Employes' %}">
+             <i class="fas fa-users"></i>
+             <p>Employés</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'Pointage_Dep' %}">
+             <i class="fas fa-calendar-day"></i>
+             <p>Pointages</p>
+           </a>
+          </li>
+          <li>
+           <a href="#" class="active">
+             <i class="fas fa-calendar-check"></i>
+             <p>Congés</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'CVS_Dep' %}">
+             <i class="fas fa-address-card"></i>
+             <p>Curriculum vitae</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'modifier_mot_de_passe_po' %}">
+             <i class="fas fa-user"></i>
+             <p>Espace Personnelle</p>
+           </a>
+          </li>
+          <li class="log-out">
+           <a href="{% url 'deconnexion' %}">
+             <i class="fas fa-sign-out"></i>
+             <p> Se déconnecter</p>
+           </a>
+          </li>
+    
+        </ul>
+       </div>
+    <div class="table-wrapper">
+        <h1>Ajouter Congé</h1>
+        <a href="{% url 'Conges_Dep' %}" class="ajout-link">
+            <div class="ajout">
+                <img src="{% static 'css/images/retour.png' %}" alt="Icon" class="button-icon">
+            </div>
+        </a>
+        <hr style="height:2px;border-width:0;color:gray;background-color:gray;margin-top:15px;">
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-row">
+                <label for="employe">Employé:</label>
+                <select id="employe" name="employe" required>
+                    <option value="">Sélectionner un employé</option>
+                    {% for employe in employes %}
+                        <option value="{{ employe.idE }}">{{ employe.nom }} {{ employe.prenom }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="date_debut">Date de début:</label>
+                <input type="date" id="date_debut" name="date_debut" required>
+            </div>
+            <div class="form-row">
+                <label for="date_fin">Date de fin:</label>
+                <input type="date" id="date_fin" name="date_fin" required>
+            </div>
+            <div class="form-row">
+                <label for="document">Document:</label>
+                <input type="file" id="document" name="document" accept="application/pdf">
+            </div>
+            <button type="submit" class="submit-button">Ajouter Congé</button>
+        </form>
+    </div>
+</body>
+</html>

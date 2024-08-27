@@ -1,0 +1,128 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'css/style1.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/form_ajout.css' %}">
+    <title>Ajouter CV</title>
+    <link href="{% static 'css/images/App_pointage2.png' %}" rel="icon">
+    <style>
+        body {
+            background-color: white;
+        }
+        html, body {
+            height: 100%; /* Assure que le body occupe toute la hauteur */
+            margin: 0;
+            overflow: hidden; /* Empêche le défilement global */
+        }
+        h1 {
+            color: #123;
+        }
+        .ajout{
+         background-color: transparent;
+         font-size: 16px;
+         margin-top: -30px;
+         margin-right: 10px;
+         float: right; 
+        }
+        .button-icon {
+          /*width: 20px; /* Largeur de l'image */
+          height: 30px; /* Hauteur de l'image */
+          margin-right: 8px; /* Espacement entre l'image et le texte */
+        }
+        .form-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            width: 50%;
+        }
+        .table-wrapper{
+            height: fit-content;
+            margin-top: 100px;
+        }
+        .error{ color:red;}
+    </style>
+</head>
+<body>
+  <div class="menu">
+    <ul>
+     <li class="profile"> 
+       <div >
+         <img id='ico'  src="{% static 'css/images/App_pointage1.png' %}" width="200px" ></a>
+               </div>
+      </li>
+      <li>
+       <a href="{% url 'HelloPointeur' %}" >
+         <i class="fas fa-home"></i>
+         <p>Dashbord</p>
+       </a>
+      </li>
+      <li>
+       <a href="{% url 'Employes' %}">
+         <i class="fas fa-users"></i>
+         <p>Employés</p>
+       </a>
+      </li>
+      <li>
+       <a href="{% url 'Pointage_Dep' %}">
+         <i class="fas fa-calendar-day"></i>
+         <p>Pointages</p>
+       </a>
+      </li>
+      <li>
+       <a href="{% url 'Conges_Dep' %}">
+         <i class="fas fa-calendar-check"></i>
+         <p>Congés</p>
+       </a>
+      </li>
+      <li>
+       <a href="#" class="active">
+         <i class="fas fa-address-card"></i>
+         <p>Curriculum vitae</p>
+       </a>
+      </li>
+      <li>
+       <a href="{% url 'modifier_mot_de_passe_po' %}">
+         <i class="fas fa-user"></i>
+         <p>Espace Personnelle</p>
+       </a>
+      </li>
+      <li class="log-out">
+       <a href="{% url 'deconnexion' %}">
+         <i class="fas fa-sign-out"></i>
+         <p> Se déconnecter</p>
+       </a>
+      </li>
+
+    </ul>
+   </div>
+   <div class="table-wrapper">
+    <h1>Ajouter Curriculum Vitae</h1>
+    <a href="{% url 'CVS_Dep' %}" class="ajout-link">
+        <div class="ajout">
+         <img src="{% static 'css/images/retour.png' %}" alt="Icon" class="button-icon">
+         </div></a>
+    <hr style="height:2px;border-width:0;color:gray;background-color:gray;margin-top:15px;">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-row">
+            
+            <div>
+                <label for="nom_prenom">Nom et Prénom</label>
+                <input type="text" id="nom_prenom" name="nom_prenom" required>
+            </div>
+        </div>
+    
+        <div class="form-row">
+            <div>
+                <label for="pdf">Télécharger CV (PDF)</label>
+                <input type="file" id="pdf" name="pdf" accept=".pdf" required>
+            </div>
+        </div>
+    
+        <button type="submit" class="submit-button">Ajouter CV</button>
+    </form>
+</div>
+</body>
+</html>

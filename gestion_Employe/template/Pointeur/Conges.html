@@ -1,0 +1,167 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'css/style1.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+    <title>Congés</title>
+    <link href="{% static 'css/images/App_pointage2.png' %}" rel="icon">
+    <style>
+        body {
+            background-color: white;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        .btn-download {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 2px 1px;
+            cursor: pointer;
+        }
+        
+        .fichier {
+            color: black;
+        }
+        
+        .ajout-link {
+            margin: 20px;
+        }
+        .controls{
+            margin-top: 0px;
+        }
+        input{
+            width: 180px;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <ul>
+         <li class="profile"> 
+           <div >
+             <img id='ico'  src="{% static 'css/images/App_pointage1.png' %}" width="200px" ></a>
+                   </div>
+          </li>
+          <li>
+           <a href="{% url 'HelloPointeur' %}" >
+             <i class="fas fa-home"></i>
+             <p>Dashbord</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'Employes' %}">
+             <i class="fas fa-users"></i>
+             <p>Employés</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'Pointage_Dep' %}">
+             <i class="fas fa-calendar-day"></i>
+             <p>Pointages</p>
+           </a>
+          </li>
+          <li>
+           <a href="#" class="active">
+             <i class="fas fa-calendar-check"></i>
+             <p>Congés</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'CVS_Dep' %}">
+             <i class="fas fa-address-card"></i>
+             <p>Curriculum vitae</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'modifier_mot_de_passe_po' %}">
+             <i class="fas fa-user"></i>
+             <p>Espace Personnelle</p>
+           </a>
+          </li>
+          <li class="log-out">
+           <a href="{% url 'deconnexion' %}">
+             <i class="fas fa-sign-out"></i>
+             <p> Se déconnecter</p>
+           </a>
+          </li>
+   
+        </ul>
+       </div>
+    <div class="table-wrapper">
+        <a href="{% url 'AjoutConge' %}" class="ajout-link">
+            <button class="ajout">
+                <img src="{% static 'css/images/ajout_conge.png' %}" alt="Icon" class="button-icon">
+                Ajouter Congé
+            </button>
+        </a>
+        <div class="controls">
+            <!-- Formulaire pour sélectionner le nombre d'éléments à afficher -->
+            <form method="GET" action="{% url 'Conges_Dep' %}" class="select-number-form">
+                <label for="number">Afficher:</label>
+                <select id="number" name="number" onchange="this.form.submit()">
+                    <option value="20" {% if request.GET.number == '20' %}selected{% endif %}>20</option>
+                    <option value="50" {% if request.GET.number == '50' %}selected{% endif %}>50</option>
+                    <option value="100" {% if request.GET.number == '100' %}selected{% endif %}>100</option>
+                </select>
+            </form>
+        
+            <!-- Formulaire de recherche -->
+            <form method="GET" action="{% url 'Conges_Dep' %}" class="search-form">
+                <input type="text" name="search" placeholder="Chercher par nom, prénom" value="{{ request.GET.search }}">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Employé</th>
+                    <th>Date de début</th>
+                    <th>Date de fin</th>
+                    <th>Document</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for conge in conges %}
+                <tr>
+                    <td>{{ conge.employe.nom }} {{ conge.employe.prenom }}</td>
+                    <td>{{ conge.date_debut }}</td>
+                    <td>{{ conge.date_fin }}</td>
+                    <td>
+                        {% if conge.document %}
+                            <a href="{{ conge.document.url }}" target="_blank" class="fichier">
+                                {% if conge.document.name|slice:"-4:" == '.pdf' %}
+                                    Fichier
+                                {% endif %}
+                            </a>
+                        {% else %}
+                            Aucun document
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{{ conge.document.url }}" class="btn-download" download>Télécharger</a>
+                    </td>
+                </tr>
+                
+                {% empty %}
+                <tr>
+                    <td colspan="5">Aucun congé trouvé.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

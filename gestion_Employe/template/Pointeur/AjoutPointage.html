@@ -1,0 +1,146 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'css/style1.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+    <title>Congés</title>
+    <link href="{% static 'css/images/App_pointage2.png' %}" rel="icon">
+    <style>
+        body {
+            background-color: white;
+        }
+        html, body {
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        .btn-download {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            margin: 2px 1px;
+            cursor: pointer;
+        }
+        
+        .fichier {
+            color: black;
+        }
+        
+        .ajout-link {
+            margin: 20px;
+        }
+        .controls{
+            margin-top: 0px;
+        }
+        input{
+            width: 180px;
+        }
+        .soumett{
+            color:white;
+            margin-top: 10px;
+            background-color: green;
+            border-radius: 5px;
+            height: 30px;
+            width: 100px;
+
+        }
+
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <ul>
+         <li class="profile"> 
+           <div >
+             <img id='ico'  src="{% static 'css/images/App_pointage1.png' %}" width="200px" ></a>
+                   </div>
+          </li>
+          <li>
+           <a href="{% url 'HelloPointeur' %}" >
+             <i class="fas fa-home"></i>
+             <p>Dashbord</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'Employes' %}">
+             <i class="fas fa-users"></i>
+             <p>Employés</p>
+           </a>
+          </li>
+          <li>
+           <a href="#" class="active">
+             <i class="fas fa-calendar-day"></i>
+             <p>Pointages</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'Conges_Dep' %}">
+             <i class="fas fa-calendar-check"></i>
+             <p>Congés</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'CVS_Dep' %}">
+             <i class="fas fa-address-card"></i>
+             <p>Curriculum vitae</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'modifier_mot_de_passe_po' %}">
+             <i class="fas fa-user"></i>
+             <p>Espace Personnelle</p>
+           </a>
+          </li>
+          <li class="log-out">
+           <a href="{% url 'deconnexion' %}">
+             <i class="fas fa-sign-out"></i>
+             <p> Se déconnecter</p>
+           </a>
+          </li>
+   
+        </ul>
+       </div>
+       <div class="table-wrapper">
+    <form method="POST" action="{% url 'traitement_pointage' %}">
+        {% csrf_token %}
+        <input type="hidden" name="jour" value="{{ today_date }}">
+
+        <table border="1" class="table">
+            <thead>
+                <tr>
+                    <th>Nom et Prénom</th>
+                    {% for titre in titres_statuts %}
+                        <th>{{ titre.nom }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for employe in employes %}
+                    <tr>
+                        <td>{{ employe.nom }} {{ employe.prenom }}</td>
+                        {% for titre in titres_statuts %}
+                            <td>
+                                <input type="radio" 
+                                       name="employe_{{ employe.idE }}"
+                                       value="{{ titre.id }}"
+                                       {% if forloop.first %} checked {% endif %}>
+                            </td>
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <button type="submit" class="soumett">Soumettre</button>
+    </form>
+    </div>
+</body>
+</html>

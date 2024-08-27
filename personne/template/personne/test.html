@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'css/style1.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+    <title>Espace Personnelle</title>
+    <link href="{% static 'css/images/App_pointage2.png' %}" rel="icon">
+    <style>
+        body {
+            background-color: white;
+        }
+        html, body {
+            height: 100%; /* Assure que le body occupe toute la hauteur */
+            margin: 0;
+            overflow: hidden; /* Empêche le défilement global */
+        }
+        
+        .form-container {
+            padding: 20px;
+            max-width: 600px;
+            margin: auto;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color:black;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            color:black;
+        }
+        .btn-modifier {
+            background-color: green;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .btn-modifier:hover {
+            background-color: darkgreen;
+        }
+        h1{
+            color:black;
+            /*text-align: center; */
+        }
+        .table-wrapper {
+            width: 32%;
+            margin-top:120px;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <ul>
+            <li class="profile">
+                <div>
+                    <img id='ico' src="{% static 'css/images/App_pointage.png' %}" width="200px">
+                </div>
+            </li>
+            <li>
+                <a href="{% url 'HelloAdmine' %}">
+                    <i class="fas fa-home"></i>
+                    <p>Dashbord</p>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'Pointeurs' %}">
+                    <i class="fas fa-users"></i>
+                    <p>Pointeurs</p>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'Departements' %}">
+                    <i class="fas fa-building"></i>
+                    <p>Départements</p>
+                </a>
+            </li>
+            <li>
+                <a href="#">
+                  <i class="fas fa-calendar-check"></i>
+                  <p>Congés</p>
+                </a>
+               </li>
+               <li>
+                <a href="{% url 'CVS' %}">
+                  <i class="fas fa-address-card"></i>
+                  <p>Curriculum vitae</p>
+                </a>
+               </li>
+            <li>
+                <a href="#" class="active">
+                    <i class="fas fa-user"></i>
+                    <p>Espace Personnelle</p>
+                </a>
+            </li>
+            <li class="log-out">
+                <a href="#">
+                    <i class="fas fa-sign-out"></i>
+                    <p>Se déconnecter</p>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="table-wrapper">
+        <h1>Modifier Mot de passe</h1>
+        <hr style="height:2px;border-width:0;color:gray;background-color:gray;margin-top:5px;margin-bottom:7px;">
+        <form method="post" action="{% url 'modifier_mot_de_passe' %}">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="old_password">Mot de Passe Actuel</label>
+                <input type="password" id="old_password" name="old_password" required>
+            </div>
+            <div class="form-group">
+                <label for="new_password">Nouveau Mot de Passe</label>
+                <input type="password" id="new_password" name="new_password" required>
+            </div>
+            <div class="form-group">
+                <label for="confirm_password">Confirmation de Mot de Passe</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+            <button type="submit" class="btn-modifier">Modifier</button>
+        </form>
+    </div>
+    <a href="{% url 'admin:index' %}" class="ajout-link">
+        <button class="ajout">
+            <i class="fas fa-cogs"></i>
+            Espace Admin
+        </button>
+    </a>  
+</body>
+</html>

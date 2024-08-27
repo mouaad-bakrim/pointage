@@ -1,0 +1,171 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="{% static 'css/style1.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'css/table.css' %}">
+    <link rel="stylesheet" href="{% static 'css/form_ajout.css' %}">
+    <title>POINTY</title>
+    <link href="{% static 'css/images/App_pointage2.png' %}" rel="icon">
+    <style>
+        body {
+            background-color: white;
+        }
+        html, body {
+            height: 100%; /* Assure que le body occupe toute la hauteur */
+            margin: 0;
+            overflow: hidden; /* Empêche le défilement global */
+        }
+        h1{
+            color:#123;
+        }
+        .ajout{
+         background-color: transparent;
+         font-size: 16px;
+         margin-top: 0px;
+         margin-right: 10px;
+        }
+        .button-icon {
+          /*width: 20px; /* Largeur de l'image */
+          height: 30px; /* Hauteur de l'image */
+          margin-right: 8px; /* Espacement entre l'image et le texte */
+        }
+        #qualification{
+            width:49%;
+        }
+    </style>
+</head>
+<body>
+    <div class="menu">
+        <ul>
+         <li class="profile"> 
+           <div >
+             <img id='ico'  src="{% static 'css/images/App_pointage1.png' %}" width="200px" ></a>
+                   </div>
+          </li>
+          <li>
+           <a href="{% url 'HelloPointeur' %}" >
+             <i class="fas fa-home"></i>
+             <p>Dashbord</p>
+           </a>
+          </li>
+          <li>
+           <a href="#" class="active">
+             <i class="fas fa-users"></i>
+             <p>Employés</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'Pointage_Dep' %}">
+             <i class="fas fa-calendar-day"></i>
+             <p>Pointages</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'Conges_Dep' %}">
+             <i class="fas fa-calendar-check"></i>
+             <p>Congés</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'CVS_Dep' %}">
+             <i class="fas fa-address-card"></i>
+             <p>Curriculum vitae</p>
+           </a>
+          </li>
+          <li>
+           <a href="{% url 'modifier_mot_de_passe_po' %}">
+             <i class="fas fa-user"></i>
+             <p>Espace Personnelle</p>
+           </a>
+          </li>
+          <li class="log-out">
+           <a href="{% url 'deconnexion' %}">
+             <i class="fas fa-sign-out"></i>
+             <p> Se déconnecter</p>
+           </a>
+          </li>
+   
+        </ul>
+       </div>
+   <div class="table-wrapper">
+    <h1>Ajouter Employé</h1>
+    <a href="{% url 'Employes' %}" class="ajout-link">
+        <div class="ajout" >
+         <img src="{% static 'css/images/retour.png' %}" alt="Icon" class="button-icon">
+         </div></a>
+    <hr style="height:2px;border-width:0;color:gray;background-color:gray;margin-top:15px;">
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-row">
+            <div>
+                <label for="nom">Nom</label>
+                <input type="text" id="nom" name="nom" required>
+            </div>
+            <div>
+                <label for="prenom">Prénom</label>
+                <input type="text" id="prenom" name="prenom" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div>
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div>
+                <label for="telephone">Téléphone</label>
+                <input type="tel" id="telephone" name="telephone" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div>
+                <label for="date_de_naissance">Date de naissance</label>
+                <input type="date" id="date_de_naissance" name="date_de_naissance" required>
+            </div>
+            <div>
+                <label for="date_d_embauche">Date d'embauche</label>
+                <input type="date" id="date_d_embauche" name="date_d_embauche" required>
+            </div>
+        </div>
+        
+        <div class="form-row">
+            <div>
+                <label for="cni">CNI</label>
+                <input type="text" id="cni" name="cni" required>
+            </div>
+            <div>
+                <label for="cnss">CNSS</label>
+                <input type="text" id="cnss" name="cnss" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div>
+                <label for="adresse">Adresse</label>
+                <textarea id="adresse" name="adresse" rows="4" required></textarea>
+            </div>
+            <div>
+                <label for="sexe">Sexe</label>
+                <select id="sexe" name="sexe" required>
+                    <option value="M">Homme</option>
+                    <option value="F">Femme</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div>
+                <label for="qualification">Qualification</label>
+                <input type="text" id="qualification" name="qualification" required>
+            </div>
+        </div>
+
+        <button type="submit" class="submit-button">Ajouter</button>
+    </form>
+</div>
+</body>
+</html>

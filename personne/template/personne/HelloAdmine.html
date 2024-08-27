@@ -1,0 +1,296 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+    <head>
+     <link rel="stylesheet" href="{% static 'css/style2.css' %}">
+     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+     <title>POINTY</title>
+     <link href="{% static 'css/images/App_pointage2.png' %}" rel="icon">
+     <style>
+      /* Assurez-vous que le fond du canvas est blanc */
+    .charts {
+     display: flex; /* Utiliser flexbox pour aligner les graphiques horizontalement */
+     gap: 20px; /* Espace entre les graphiques (ajustez selon les besoins) */
+     justify-content: space-between; /* Aligner les graphiques avec un espace entre eux */
+    }
+  
+  .chart-container {
+    position: relative; /* Contexte de positionnement pour les éléments enfants */
+    background-color: white; /* Fond blanc pour la zone du graphique */
+    padding:10px;
+    border-radius: 5px; /* Coins arrondis */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Ombre légère */
+    /*width: 400px; /* Largeur du conteneur */
+    /*height: 275px; /* Hauteur du conteneur (ajustez selon les besoins) */
+    width: 400px;
+    flex: 1; /* Permet aux conteneurs de s'ajuster également dans l'espace disponible */
+  }
+
+  canvas {
+    background-color: white; /* Fond blanc pour le canvas */
+    width: 100%; /* Largeur complète du conteneur */
+    height: 100%; /* Hauteur complète du conteneur */
+  }
+  html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* Prevent body overflow to handle scrolling in menu */
+}
+
+  
+  </style>
+    </head>
+    <body>
+      
+    <div class="menu">
+     <ul>
+      <li class="profile"> 
+        <div >
+          <img id='ico'  src="{% static 'css/images/App_pointage1.png' %}" width="200px" ></a>
+                </div>
+       </li>
+       <li>
+        <a href="#" class="active">
+          <i class="fas fa-home"></i>
+          <p>Dashbord</p>
+        </a>
+       </li>
+       <li>
+        <a href="{% url 'Pointages' %}">
+          <i class="fas fa-calendar-day"></i>
+          <p>Pointages</p>
+        </a>
+       </li>
+       <li>
+        <a href="{% url 'Pointeurs' %}">
+          <i class="fas fa-users"></i>
+          <p>Pointeurs</p>
+        </a>
+       </li>
+       <li>
+        <a href="{% url 'Departements' %}">
+          <i class="fas fa-building"></i>
+          <p>Départements</p>
+        </a>
+       </li>
+       <li>
+        <a href="{% url 'Conges' %}">
+          <i class="fas fa-calendar-check"></i>
+          <p>Congés</p>
+        </a>
+       </li>
+       <li>
+        <a href="{% url 'CVS' %}">
+          <i class="fas fa-address-card"></i>
+          <p>Curriculum vitae</p>
+        </a>
+       </li>
+       <li>
+        <a href="{% url 'Espace_Personnelle' %}">
+          <i class="fas fa-user"></i>
+          <p>Espace Personnelle</p>
+        </a>
+       </li>
+       <li class="log-out">
+        <a href="{% url 'deconnexion' %}">
+          <i class="fas fa-sign-out"></i>
+          <p> Se déconnecter</p>
+        </a>
+       </li>
+
+     </ul>
+    </div>
+
+    <div class="content">
+
+      <div class="title"> 
+       <p> Dashbord</p>
+       <i class="fas fa-chart-bar"> </i>
+      </div>
+     <div class="data-info">
+        <div class="box">
+           <i class="fas fa-user-tie"></i>
+           <div class="data">
+            <p> Employé </p>
+            <span> {{ user_count }}</span>
+           </div>
+        </div>
+        <div class="box">
+          <i class="fas fa-building"></i>
+          <div class="data">
+           <p> Département </p>
+           <span> {{ voy_count }}</span>
+          </div>
+       </div>
+       <div class="box">
+        <i class="fas fa-address-card"></i>
+        <div class="data">
+         <p> Congés Aujourd'hui</p>
+         <span> {{ comd_count }}</span>
+        </div>
+     </div>
+     <div class="box">
+      <i class="fas fa-user-slash"></i>
+      <div class="data">
+       <p> Absences Aujourd'hui </p>
+       <span> {{absent_count }}</span>
+      </div>
+   </div>
+ 
+
+
+     </div>
+     <div class="title"> 
+      <p> Pointage d'aujourd'hui Le : {{date_dujour }}</p>
+      <i class="fas fa-clipboard-list"> </i>
+     </div>
+     <table>
+      <thead>
+        <tr>
+          <th>Département</th>
+          <th>Pointeur</th>
+          <th>Nombre d'absence</th>
+          <th>Nombre de présence</th>
+          <th>Nombre de congé</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in data %}
+          <tr>
+            <td>{{ item.departement.nom }}</td>
+            <td>
+              {% if item.pointeurs.count %}
+                  <p>{{ item.pointeurs.first.nom }} {{ item.pointeurs.first.prenom }}</p>
+              {% else %}
+                  Aucun pointeur
+              {% endif %}
+          </td>
+            <td>{{ item.absence_count }}</td>
+            <td>{{ item.presence_count }}</td>
+            <td>{{ item.conge_count }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <div class="title"> 
+      <p> Statistiques De {{start_date}} à {{ end_date }}</p>
+      <i class="fas fa-clipboard-list"> </i>
+     </div>
+     <div class="charts" >
+      <div class="chart-container">
+          <canvas id="absencesChart"></canvas>
+      </div>
+      <div class="chart-container">
+          <canvas id="congesChart"></canvas>
+      </div>
+    </div>
+    </div>
+    <script>
+      // Utilisez JSON.parse pour convertir les chaînes JSON en objets JavaScript
+      const absencesData = JSON.parse('{{ absences_data|escapejs }}');
+      const congesData = JSON.parse('{{ conges_data|escapejs }}');
+  
+      // Extraire les labels et les valeurs
+      const absencesLabels = absencesData.map(item => `J${absencesData.indexOf(item) + 1}`);
+      const absencesValues = absencesData.map(item => item.count);
+  
+      const congesLabels = congesData.map(item => `J${congesData.indexOf(item) + 1}`);
+      const congesValues = congesData.map(item => item.count);
+      console.log(congesLabels)
+      // Configuration du graphique pour les absences
+// Configuration du graphique pour les absences
+new Chart(document.getElementById('absencesChart'), {
+    type: 'line',
+    data: {
+        labels: absencesLabels,
+        datasets: [{
+            label: 'Absences',
+            data: absencesValues,
+            borderColor: 'rgba(255, 99, 132, 1)',
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        // Affiche les valeurs sans décimales dans l'infobulle
+                        return tooltipItem.label + ': ' + Math.floor(tooltipItem.raw);
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true
+            },
+            y: {
+                beginAtZero: true, // Assure que l'axe commence à 0
+                ticks: {
+                    // Formate les ticks pour afficher uniquement des entiers
+                    callback: function(value) {
+                        return value; // Affiche les valeurs entières sans décimales
+                    }
+                }
+            }
+        }
+    }
+});
+
+// Configuration du graphique pour les congés
+new Chart(document.getElementById('congesChart'), {
+    type: 'line',
+    data: {
+        labels: congesLabels,
+        datasets: [{
+            label: 'Congés',
+            data: congesValues,
+            borderColor: 'rgba(54, 162, 235, 1)',
+            backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                display: true
+            },
+            tooltip: {
+                callbacks: {
+                    label: function(tooltipItem) {
+                        // Affiche les valeurs sans décimales dans l'infobulle
+                        return tooltipItem.label + ': ' + Math.floor(tooltipItem.raw);
+                    }
+                }
+            }
+        },
+        scales: {
+            x: {
+                beginAtZero: true
+            },
+            y: {
+                beginAtZero: true, // Assure que l'axe commence à 0
+                ticks: {
+                    // Formate les ticks pour afficher uniquement des entiers
+                    callback: function(value) {
+                        return value; // Affiche les valeurs entières sans décimales
+                    }
+                }
+            }
+        }
+    }
+});
+  </script>
+  
+  </body>
+
+</html>

@@ -1,0 +1,132 @@
+/* Styles pour le tableau */
+.container {
+  display: flex;
+  justify-content: center ; /* Centre horizontalement */
+  align-items: flex-start; /* Aligne les éléments en haut */
+  padding-top: 20px; /* Espace en haut si nécessaire */
+  margin: 0 0; 
+}
+/* Conteneur autour du tableau */
+.table-wrapper {
+  position: relative; /* Positionne le conteneur en mode relatif */
+  width: 75%; /* Largeur du conteneur */
+  /*height: auto;*/
+  max-height: 500px; 
+  /*margin-top: 50px; /* Centre le conteneur horizontalement */
+  margin: auto; /* Centre horizontalement */
+  margin-top:50px;
+  padding: 5px;
+  border: 1px solid #ddd; /* Bordure optionnelle */
+  border-radius: 5px; /* Coins arrondis optionnels */
+  background-color: #f9f9f9;
+  border-collapse: collapse; /* Assure que les bordures ne se chevauchent pas */
+  overflow-y: auto; 
+}
+
+/* Styles pour le bouton */
+.ajout {
+  position: absolute; /* Positionne le bouton de manière absolue par rapport au conteneur */
+  display: flex; /* Utiliser Flexbox pour aligner les éléments */
+  align-items: center; /* Aligner les éléments verticalement au centre */
+  top: 10px; /* Positionne le bouton 35px au-dessus du conteneur */
+  right: 5px; /* Aligne le bouton à gauche du conteneur */
+  width: auto; /* Largeur du bouton */
+  height: 50px; /* Hauteur du bouton */
+  padding: 5px; /* Pas de padding */
+  font-size: 16px; /* Taille de la police */
+  background-color: #123; /* Couleur de fond */
+  color: white; /* Couleur du texte */
+  border: none; /* Supprime les bordures par défaut */
+  border-radius: 5px; /* Coins arrondis */
+  cursor: pointer; /* Curseur pointer */
+}
+.button-icon {
+  /*width: 20px; /* Largeur de l'image */
+  height: 40px; /* Hauteur de l'image */
+  margin-right: 8px; /* Espacement entre l'image et le texte */
+
+}
+/* Styles pour le tableau */
+.table {
+  width: 100%; /* Largeur du tableau */
+  border-collapse: collapse; /* Assure que les bordures ne se chevauchent pas */
+  margin-right:auto; /* Espace au-dessus du tableau */
+  margin-top:40px;
+}
+
+
+/* Styles pour les cellules */
+th, td {
+  border: 1px solid #dddddd;
+  padding: 8px;
+  background-color: white;
+  color: black;
+  text-align: left;
+  border-radius: 0px;
+  height: 25px;
+}
+
+/* Styles spécifiques pour la colonne Email */
+th#em1, td.em {
+  min-width: 200px; /* Largeur minimale pour la colonne Email */
+  width: auto; /* Permet à la largeur de la colonne de s'ajuster automatiquement en fonction du contenu */
+}
+
+/* Styles pour les lignes paires et au survol */
+
+tr:hover {
+  background-color: #f0f0f0; /* Couleur de fond au survol */
+}
+th{
+  background-color: #f0f0f0;
+}
+
+.controls {
+  display: flex;
+  /*justify-content: 10px;*/
+  margin-bottom: 15px;
+  margin-top: 20px;
+  color:black;
+}
+
+.select-number-form {
+  display: flex;
+  align-items: center;
+  color:black;
+}
+
+.select-number-form label {
+  margin-right: 10px;
+  color:black;
+}
+
+.search-form {
+  display: flex;
+  align-items: center;
+  color:black;
+  padding-left: 100px;
+}
+
+.search-form input {
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  color:black;
+  height: 20px;
+}
+
+.search-form button {
+  background-color: #007bff;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  margin-left: 5px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+select{
+  color:black;
+}
+option{
+  color:black;
+}
