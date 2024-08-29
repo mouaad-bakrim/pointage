@@ -23,18 +23,28 @@ from io import BytesIO
 from .models import Employe, ListeStatut, Pointage, Departement, Point_PDF
 from datetime import date
 from django.conf import settings
+from datetime import datetime, timedelta, date
+import calendar
+import uuid
+from django.shortcuts import get_object_or_404
 # Create your views here.
+def add_default_statuts():
+    statuts = ['Absent', 'Congé', 'Présent']
+    for nom in statuts:
+        if not ListeStatut.objects.filter(nom=nom).exists():
+            ListeStatut.objects.create(nom=nom)
+
 @login_required
 def HelloPointeur(request):
     user = request.user
-
+    
     # Vérifiez si l'utilisateur est un Pointeur
     if user.statut != 'Pointeur':
         return redirect('page_login')  # Rediriger vers la page de connexion ou une page d'erreur
-
+    add_default_statuts()
     # Accéder à l'objet Pointeur associé à l'utilisateur
     pointeur = user.idp
-
+    
     # Vérifier si le pointeur est associé à un département
     if not pointeur or not pointeur.departement:
         # Gérer le cas où le pointeur ou son département est manquant
@@ -48,22 +58,28 @@ def HelloPointeur(request):
     conge_statut = ListeStatut.objects.get(nom='Congé')
 
     # Calcul des statistiques pour le département du Pointeur
-    start_date = today - timedelta(days=14)
-    end_date = today
+    # Obtenez le premier et le dernier jour du mois en cours
+    start_date = today.replace(day=1)
+    end_date = today.replace(day=calendar.monthrange(today.year, today.month)[1])
+
+    # Générez les données d'absence pour tout le mois
     absences_data = [
-        {'date': (start_date + timedelta(days=i)).strftime('%d/%m'), 
-         'count': Pointage.objects.filter(jour=start_date + timedelta(days=i), statut=absent_statut, departement=department).count()}
-        for i in range(15)
+    {'date': (start_date + timedelta(days=i)).strftime('%d/%m'),
+     'count': Pointage.objects.filter(jour=start_date + timedelta(days=i), statut=absent_statut, departement=department).count()}
+    for i in range((end_date - start_date).days + 1)
     ]
+
+    # Générez les données de congés pour tout le mois
     conges_data = [
-        {'date': (start_date + timedelta(days=i)).strftime('%d/%m'), 
-         'count': Pointage.objects.filter(jour=start_date + timedelta(days=i), statut=conge_statut, departement=department).count()}
-        for i in range(15)
+    {'date': (start_date + timedelta(days=i)).strftime('%d/%m'),
+     'count': Pointage.objects.filter(jour=start_date + timedelta(days=i), statut=conge_statut, departement=department).count()}
+    for i in range((end_date - start_date).days + 1)
     ]
 
     # Calcul des nouvelles statistiques
     emp_count = Employe.objects.filter(departement=department).count()
-    cv_count = CV.objects.filter(departement=department).count()
+    #cv_count = CV.objects.filter(departement=department).count()
+    cv_count =Pointage.objects.filter(jour=today, statut=conge_statut, departement=department).count()
     absent_count_today = Pointage.objects.filter(jour=today, statut=absent_statut, departement=department).count()
 
     context = {
@@ -209,8 +225,9 @@ def CVS_Dep(request):
     cvs = CV.objects.filter(departement=department)
     if search_query:
         cvs = cvs.filter(
-            Q(nom_prenom__icontains=search_query) |
-            Q(departement__nom__icontains=search_query)
+        Q(nom_prenom__icontains=search_query) |
+        Q(departement__nom__icontains=search_query) |
+        Q(niveau_etude__icontains=search_query)  # Ajouter cette ligne pour filtrer par niveau d'étude
         )
 
     # Trier les CVs par nom et prénom
@@ -228,13 +245,23 @@ def CVS_Dep(request):
         'number': number,
     }
     return render(request, 'Pointeur/CVS_Dep.html', context)
-
 @login_required
 def AjouterCV(request):
     if request.user.statut == 'Pointeur':
         if request.method == 'POST':
+            # Récupérer les données du formulaire
             nom_prenom = request.POST.get('nom_prenom')
-            document = request.FILES.get('pdf')  # Assurez-vous que 'pdf' est le bon nom
+            date_naissance = request.POST.get('date_naissance')
+            situation_familiale = request.POST.get('situation_familiale')
+            email = request.POST.get('email')
+            telephone = request.POST.get('telephone')
+            niveau_etude = request.POST.get('niveau_etude')
+            diplomes = request.POST.get('diplomes')
+            experiences = request.POST.get('experiences')
+            permis_de_conduires = request.POST.getlist('permis_de_conduire')  # Liste de valeurs des permis
+            langages = request.POST.get('langages')
+            infos_complementaires = request.POST.get('infos_complementaires')
+            document = request.FILES.get('document')
 
             # Récupérez le Pointeur et son département
             try:
@@ -245,22 +272,35 @@ def AjouterCV(request):
                     # Créez l'objet CV avec le département du pointeur
                     cv = CV.objects.create(
                         nom_prenom=nom_prenom,
+                        date_naissance=date_naissance,
+                        situation_familiale=situation_familiale,
+                        email=email,
+                        telephone=telephone,
+                        niveau_etude=niveau_etude,
+                        diplomes=diplomes,
+                        experiences=experiences,
+                        permis_de_conduites={'permis': permis_de_conduires},  # Stocker les permis sous forme de JSON
+                        langages=langages,
+                        infos_complementaires=infos_complementaires,
                         document=document,
-                        departement=departement
+                        departement=departement,
+                        date_depot=date.today()
                     )
                     # Rediriger vers la liste des CVs
                     return redirect('CVS_Dep')
                 else:
                     # Gérez le cas où le pointeur n'a pas de département associé
-                    return render(request, 'Pointeur/AjoutCV.html')
+                    return render(request, 'Pointeur/AjoutCV.html', {'error': 'Aucun département associé.'})
             except Pointeur.DoesNotExist:
                 # Gérez le cas où le Pointeur n'existe pas
-                return render(request, 'Pointeur/AjoutCV.html')
+                return render(request, 'Pointeur/AjoutCV.html', {'error': 'Pointeur introuvable.'})
 
         # Aucune donnée n'est postée, juste rendre le formulaire vide
         return render(request, 'Pointeur/AjoutCV.html')
     else:
         return redirect('page_login')
+
+
 @login_required
 def Espace_Perso_Po(request):
     user = request.user
@@ -377,17 +417,16 @@ def AjoutConge(request):
             employe_id = request.POST.get('employe')
             date_debut = request.POST.get('date_debut')
             date_fin = request.POST.get('date_fin')
-            document = request.FILES.get('document')
 
             if employe_id and date_debut and date_fin:
                 try:
                     employe = Employe.objects.get(idE=employe_id)
-                    # Créez un nouvel objet Congé
+                    # Créez un nouvel objet Congé avec une référence générée
                     conge = Conge(
                         employe=employe,
                         date_debut=date_debut,
                         date_fin=date_fin,
-                        document=document
+                        reference=f'RC{uuid.uuid4().hex[:6].upper()}'  # Génération de la référence
                     )
                     conge.save()
                     # Redirigez vers la page Conges

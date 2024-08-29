@@ -32,6 +32,9 @@
           height: 30px; /* Hauteur de l'image */
           margin-right: 8px; /* Espacement entre l'image et le texte */
         }
+        .alertd{
+            color:red;
+        }
     </style>
 </head>
 <body>
@@ -102,6 +105,15 @@
     <hr style="height:2px;border-width:0;color:gray;background-color:gray;margin-top:15px;">
     <form method="post">
         {% csrf_token %}
+        <div>
+            <div>
+                {% if error %}
+                  <div class="alertd" >
+                   {{ error }}
+                  </div>
+                {% endif %}
+            </div>
+        </div>
         <div class="form-row">
             <div>
                 <label for="nom">Nom</label>
@@ -159,6 +171,18 @@
                 </select>
             </div>
         </div>
+        
+        <div class="form-row">
+            <div>
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div>
+                <label for="confirm_password">Confirmation du mot de passe</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+            </div>
+        </div>
+
 
         <div class="form-row">
             <div>
@@ -175,5 +199,15 @@
         <button type="submit" class="submit-button">Ajouter</button>
     </form>
 </div>
+<script>
+    // Fonction pour afficher/masquer le mot de passe
+    function togglePasswordVisibility() {
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirm_password');
+        const passwordType = passwordInput.type === 'password' ? 'text' : 'password';
+        passwordInput.type = passwordType;
+        confirmPasswordInput.type = passwordType;
+    }
+</script>
 </body>
 </html>

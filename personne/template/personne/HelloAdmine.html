@@ -10,9 +10,11 @@
      <style>
       /* Assurez-vous que le fond du canvas est blanc */
     .charts {
-     display: flex; /* Utiliser flexbox pour aligner les graphiques horizontalement */
-     gap: 20px; /* Espace entre les graphiques (ajustez selon les besoins) */
+     /*display: flex; /* Utiliser flexbox pour aligner les graphiques horizontalement */
+     /*gap: 20px; /* Espace entre les graphiques (ajustez selon les besoins) */
      justify-content: space-between; /* Aligner les graphiques avec un espace entre eux */
+     align-content: center;
+     padding:0px;
     }
   
   .chart-container {
@@ -22,15 +24,17 @@
     border-radius: 5px; /* Coins arrondis */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Ombre légère */
     /*width: 400px; /* Largeur du conteneur */
-    /*height: 275px; /* Hauteur du conteneur (ajustez selon les besoins) */
-    width: 400px;
+    /* Hauteur du conteneur (ajustez selon les besoins) */
+    /*height: 40%; */
+    width: 97%;
     flex: 1; /* Permet aux conteneurs de s'ajuster également dans l'espace disponible */
-  }
-
+    margin-top: 10px;
+}
   canvas {
     background-color: white; /* Fond blanc pour le canvas */
     width: 100%; /* Largeur complète du conteneur */
-    height: 100%; /* Hauteur complète du conteneur */
+    /*height: 100%; /* Hauteur complète du conteneur */
+    height: auto;
   }
   html, body {
   margin: 0;
@@ -125,7 +129,7 @@
           </div>
        </div>
        <div class="box">
-        <i class="fas fa-address-card"></i>
+        <i class="fas fa-calendar-check"></i>
         <div class="data">
          <p> Congés Aujourd'hui</p>
          <span> {{ comd_count }}</span>
@@ -188,18 +192,16 @@
     </div>
     </div>
     <script>
-      // Utilisez JSON.parse pour convertir les chaînes JSON en objets JavaScript
       const absencesData = JSON.parse('{{ absences_data|escapejs }}');
-      const congesData = JSON.parse('{{ conges_data|escapejs }}');
-  
-      // Extraire les labels et les valeurs
-      const absencesLabels = absencesData.map(item => `J${absencesData.indexOf(item) + 1}`);
-      const absencesValues = absencesData.map(item => item.count);
-  
-      const congesLabels = congesData.map(item => `J${congesData.indexOf(item) + 1}`);
-      const congesValues = congesData.map(item => item.count);
-      console.log(congesLabels)
-      // Configuration du graphique pour les absences
+const congesData = JSON.parse('{{ conges_data|escapejs }}');
+
+// Extraire les labels et les valeurs
+const absencesLabels = absencesData.map(item => item.date); // Utilisez les dates comme labels
+const absencesValues = absencesData.map(item => item.count);
+
+const congesLabels = congesData.map(item => item.date); // Utilisez les dates comme labels
+const congesValues = congesData.map(item => item.count);
+
 // Configuration du graphique pour les absences
 new Chart(document.getElementById('absencesChart'), {
     type: 'line',
@@ -222,7 +224,6 @@ new Chart(document.getElementById('absencesChart'), {
             tooltip: {
                 callbacks: {
                     label: function(tooltipItem) {
-                        // Affiche les valeurs sans décimales dans l'infobulle
                         return tooltipItem.label + ': ' + Math.floor(tooltipItem.raw);
                     }
                 }
@@ -233,11 +234,10 @@ new Chart(document.getElementById('absencesChart'), {
                 beginAtZero: true
             },
             y: {
-                beginAtZero: true, // Assure que l'axe commence à 0
+                beginAtZero: true, 
                 ticks: {
-                    // Formate les ticks pour afficher uniquement des entiers
                     callback: function(value) {
-                        return value; // Affiche les valeurs entières sans décimales
+                        return value;
                     }
                 }
             }
@@ -267,7 +267,6 @@ new Chart(document.getElementById('congesChart'), {
             tooltip: {
                 callbacks: {
                     label: function(tooltipItem) {
-                        // Affiche les valeurs sans décimales dans l'infobulle
                         return tooltipItem.label + ': ' + Math.floor(tooltipItem.raw);
                     }
                 }
@@ -278,11 +277,10 @@ new Chart(document.getElementById('congesChart'), {
                 beginAtZero: true
             },
             y: {
-                beginAtZero: true, // Assure que l'axe commence à 0
+                beginAtZero: true,
                 ticks: {
-                    // Formate les ticks pour afficher uniquement des entiers
                     callback: function(value) {
-                        return value; // Affiche les valeurs entières sans décimales
+                        return value;
                     }
                 }
             }

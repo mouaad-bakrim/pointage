@@ -35,13 +35,15 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 15px;
-            width: 50%;
+            width: 100%;
         }
-        .table-wrapper{
-            height: fit-content;
-            margin-top: 100px;
-        }
+        
         .error{ color:red;}
+        #permis_de_conduire label {
+         display: inline-block;
+         margin-right: 15px; /* Espace entre les éléments */
+         margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -105,24 +107,104 @@
          </div></a>
     <hr style="height:2px;border-width:0;color:gray;background-color:gray;margin-top:15px;">
     <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        <div class="form-row">
-            
-            <div>
-                <label for="nom_prenom">Nom et Prénom</label>
-                <input type="text" id="nom_prenom" name="nom_prenom" required>
-            </div>
+      {% csrf_token %}
+      
+      <!-- Nom et Prénom & Date de Naissance -->
+      <div class="form-row">
+          <div>
+              <label for="nom_prenom">Nom et Prénom</label>
+              <input type="text" id="nom_prenom" name="nom_prenom" required>
+          </div>
+          <div>
+              <label for="date_naissance">Date de Naissance</label>
+              <input type="date" id="date_naissance" name="date_naissance" required>
+          </div>
+      </div>
+      
+      <!-- Situation Familiale & Email -->
+      <div class="form-row">
+          <div>
+              <label for="situation_familiale">Situation Familiale</label>
+              <select id="situation_familiale" name="situation_familiale" required>
+                  <option value="Célibataire">Célibataire</option>
+                  <option value="Marié(e)">Marié(e)</option>
+                  <option value="Divorcé(e)">Divorcé(e)</option>
+                  <option value="Veuf/Veuve">Veuf/Veuve</option>
+              </select>
+          </div>
+          <div>
+              <label for="email">Adresse Email</label>
+              <input type="email" id="email" name="email" required>
+          </div>
+      </div>
+      
+      <!-- Téléphone & Niveau d'Étude -->
+      <div class="form-row">
+          <div>
+              <label for="telephone">Téléphone</label>
+              <input type="tel" id="telephone" name="telephone" required>
+          </div>
+          <div>
+              <label for="niveau_etude">Niveau d'Étude</label>
+              <select id="niveau_etude" name="niveau_etude" required>
+                  <option value="Sans Bac">Sans Bac</option>
+                  <option value="Bac">Bac</option>
+                  <option value="Bac +2">Bac +2</option>
+                  <option value="Bac +3">Bac +3</option>
+                  <option value="Bac +5">Bac +5</option>
+                  <option value="Bac +7">Bac +7</option>
+                  <option value="Bac +8">Bac +8</option>
+                  <option value="Plus que Bac +8">Plus que Bac +8</option>
+              </select>
+          </div>
+      </div>
+      
+      <!-- Diplômes & Expériences -->
+      <div class="form-row">
+        <div>
+            <label for="diplomes">Diplômes</label>
+            <input type="text" id="diplomes" name="diplomes" required>
         </div>
-    
-        <div class="form-row">
-            <div>
-                <label for="pdf">Télécharger CV (PDF)</label>
-                <input type="file" id="pdf" name="pdf" accept=".pdf" required>
-            </div>
+        <div>
+            <label for="experiences">Expériences</label>
+            <input type="text" id="experiences" name="experiences" required>
         </div>
-    
-        <button type="submit" class="submit-button">Ajouter CV</button>
-    </form>
+    </div>
+      
+      <!-- Permis de Conduire & Langages -->
+      <div class="form-row">
+        <div>
+          <label for="permis_de_conduire">Permis de Conduire</label>
+          <div id="permis_de_conduire">
+              <label><input type="checkbox" name="permis_de_conduire" value="A"> A</label>
+              <label><input type="checkbox" name="permis_de_conduire" value="B"> B</label>
+              <label><input type="checkbox" name="permis_de_conduire" value="C"> C</label>
+              <label><input type="checkbox" name="permis_de_conduire" value="D"> D</label>
+              <label><input type="checkbox" name="permis_de_conduire" value="EB"> EB</label>
+              <label><input type="checkbox" name="permis_de_conduire" value="EC"> EC</label>
+              <label><input type="checkbox" name="permis_de_conduire" value="ED"> ED</label>
+          </div>
+      </div>
+      <div>
+        <label for="langages">Langages</label>
+        <input type="text" id="langages" name="langages" placeholder="Francais, Anglais" required>
+    </div>
+      </div>
+      
+      <!-- Infos Complémentaires & Télécharger CV -->
+      <div class="form-row">
+          <div>
+              <label for="infos_complementaires">Infos Complémentaires</label>
+              <textarea id="infos_complementaires" name="infos_complementaires" rows="4"></textarea>
+          </div>
+          <div>
+              <label for="document">Importer CV (PDF)</label>
+              <input type="file" id="document" name="document" accept=".pdf" required>
+          </div>
+      </div>
+  
+      <button type="submit" class="submit-button">Ajouter CV</button>
+  </form>
 </div>
 </body>
 </html>

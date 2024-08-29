@@ -16,4 +16,5 @@ urlpatterns = [
  path('Espace_Personnelle/', views.espace_personnelle, name='Espace_Personnelle'),
 path('modifier_mot_de_passe/', views.modifier_mot_de_passe, name='modifier_mot_de_passe'),
 path('deconnexion/', views.deconnexion, name='deconnexion'),
+path('generate_pdf/<int:conge_id>/', views.generate_pdf, name='generate_pdf'),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

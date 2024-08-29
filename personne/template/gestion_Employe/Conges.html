@@ -17,7 +17,7 @@
             overflow: hidden;
         }
 
-        .btn-download {
+        .btn-download, .btn-print {
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -29,8 +29,8 @@
             margin: 2px 1px;
             cursor: pointer;
         }
-        .fichier {
-            color: black;
+        input{
+            width: 250px;
         }
     </style>
 </head>
@@ -106,50 +106,47 @@
         
             <!-- Formulaire de recherche -->
             <form method="GET" action="{% url 'Conges' %}" class="search-form">
-                <input type="text" name="search" placeholder="Chercher par nom ou prénom" value="{{ request.GET.search }}">
+                <input type="text" name="search" placeholder="Chercher par nom ou prénom , réference" value="{{ request.GET.search }}">
                 <button type="submit"><i class="fas fa-search"></i></button>
             </form>
         </div>
         <table class="table">
             <thead>
                 <tr>
+                    <th>Référence</th>
                     <th>Nom et Prénom</th>
                     <th>Département</th>
+                    <th>Date de Demande</th>
                     <th>Date de Début</th>
                     <th>Date de Fin</th>
-                    <th>Document</th>
-                    <th>Action</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
                 {% for conge in conges %}
                 <tr>
+                    <td>{{ conge.reference }}</td>
                     <td>{{ conge.employe.nom }} {{ conge.employe.prenom }}</td>
                     <td>{{ conge.employe.departement.nom }}</td>
+                    <td>{{ conge.date_demande }}</td>
                     <td>{{ conge.date_debut }}</td>
                     <td>{{ conge.date_fin }}</td>
                     <td>
-                        {% if conge.document %}
-                            <a href="{{ conge.document.url }}" target="_blank" class="fichier">
-                                {% if conge.document.name|slice:"-4:" == '.pdf' %}
-                                    Fichier
-                                {% endif %}
-                            </a>
-                        {% else %}
-                            Aucun document
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{{ conge.document.url }}" class="btn-download" download>Télécharger</a>
+                        <button onclick="printPDF('{{ conge.Idc }}')" class="btn-print">Imprimer</button>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="6">Aucun congé trouvé.</td>
+                    <td colspan="7">Aucun congé trouvé.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
+    <script>
+        function printPDF(congeId) {
+            window.open("{% url 'generate_pdf' 0 %}".replace('0', congeId), '_blank');
+        }
+    </script>
 </body>
 </html>

@@ -35,6 +35,24 @@ from django.core.exceptions import ValidationError
 from personne.models import Pointeur, User, Departement 
 from django.contrib.auth import logout
 from django.db.models import Q
+from datetime import datetime, timedelta
+import calendar
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
+from django.shortcuts import get_object_or_404
+from io import BytesIO
+from io import BytesIO
+from django.http import HttpResponse
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+
+def add_default_statuts():
+    statuts = ['Absent', 'Congé', 'Présent']
+    for nom in statuts:
+        if not ListeStatut.objects.filter(nom=nom).exists():
+            ListeStatut.objects.create(nom=nom)
+
 @csrf_protect
 def page_login(request):
     if request.method == 'POST':
@@ -98,13 +116,13 @@ def oblie_mot_pass(request):
 def HelloAdmine(request):
     if request.user.statut != 'Admine':
         return redirect('page_login')                                                                                    
-
+    add_default_statuts()
     today = timezone.now().date()
 
     # Calculer les statistiques
     user_count = Employe.objects.count()  # Nombre d'employés
     voy_count = Departement.objects.count()  # Nombre de départements
-    comd_count = Conge.objects.filter(date_debut__lte=today, date_fin__gte=today).count()  # Nombre de congés
+     # Nombre de congés
 
     # Récupérer les statuts
     absent_statut = ListeStatut.objects.get(nom='Absent')
@@ -112,7 +130,7 @@ def HelloAdmine(request):
     present_statut = ListeStatut.objects.get(nom='Présent')
 
     absent_count = Pointage.objects.filter(jour=today, statut=absent_statut).count()  # Nombre de personnes absentes aujourd'hui
-    
+    comd_count = Pointage.objects.filter(jour=today, statut=conge_statut).count()
     departements = Departement.objects.all()
 
     data = []
@@ -133,20 +151,28 @@ def HelloAdmine(request):
                 'conge_count': conge_count,
             })
 
-    start_date = today - timedelta(days=14)
-    end_date = today
-    
-    dates = [start_date + timedelta(days=i) for i in range(15)]
+    start_date = today.replace(day=1)
+    end_date = today.replace(day=calendar.monthrange(today.year, today.month)[1])
+
+    # Génère toutes les dates du mois en cours
+    dates = [start_date + timedelta(days=i) for i in range((end_date - start_date).days + 1)]
 
     absences_data = [
-        {'date': date.strftime('%d/%m'), 'count': Pointage.objects.filter(jour=date, statut=absent_statut).count()}
-        for date in dates
-    ]
-    conges_data = [
-        {'date': date.strftime('%d/%m'), 'count': Pointage.objects.filter(jour=date, statut=conge_statut).count()}
-        for date in dates
+    {
+        'date': date.strftime('%d/%m'), 
+        'count': Pointage.objects.filter(jour=date, statut=absent_statut).count() if date <= today else 0
+    }
+    for date in dates
     ]
 
+    conges_data = [
+    {
+        'date': date.strftime('%d/%m'), 
+        'count': Pointage.objects.filter(jour=date, statut=conge_statut).count() if date <= today else 0
+    }
+    for date in dates
+    ]
+    
     context = {
         'user_count': user_count,
         'voy_count': voy_count,
@@ -193,7 +219,8 @@ def Pointeurs(request):
 @login_required
 def AjoutPointeur(request):
     if request.user.statut != 'Admine':
-     return redirect('page_login')
+        return redirect('page_login')
+    
     if request.method == 'POST':
         # Récupérer les données du formulaire
         nom = request.POST.get('nom')
@@ -207,19 +234,22 @@ def AjoutPointeur(request):
         adresse = request.POST.get('adresse')
         sexe = request.POST.get('sexe')
         departement_id = request.POST.get('departement')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
 
         # Vérifier si des champs sont manquants
-        if not all([nom, prenom, email, telephone, date_de_naissance, date_d_embauche, cni, cnss, adresse, sexe, departement_id]):
+        if not all([nom, prenom, email, telephone, date_de_naissance, date_d_embauche, cni, cnss, adresse, sexe, departement_id, password, confirm_password]):
             return render(request, 'personne/AjoutPointeur.html', {'departments': Departement.objects.all(), 'error': 'Tous les champs sont requis.'})
+
+        # Vérifier que les mots de passe correspondent
+        if password != confirm_password:
+            return render(request, 'personne/AjoutPointeur.html', {'departments': Departement.objects.all(), 'error': 'Les mots de passe ne correspondent pas.'})
 
         try:
             departement_id = int(departement_id)
             departement = Departement.objects.get(id_Dep=departement_id)
         except (ValueError, Departement.DoesNotExist):
             return render(request, 'personne/AjoutPointeur.html', {'departments': Departement.objects.all(), 'error': 'Département invalide.'})
-
-        # Générer un mot de passe aléatoire
-        password = get_random_string(length=8)
 
         # Créer un pointeur
         pointeur = Pointeur.objects.create(
@@ -252,7 +282,13 @@ def AjoutPointeur(request):
 
         # Créer un utilisateur associé au pointeur
         username = f"{nom}_{prenom}"
-        user = User.objects.create_user(username=username, email=email, password=password, statut='Pointeur', idp=pointeur)
+        user = User.objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            statut='Pointeur',
+            idp=pointeur
+        )
 
         # Envoyer un e-mail à l'utilisateur avec ses informations de connexion
         subject = 'Votre compte Pointeur'
@@ -341,8 +377,10 @@ def CVS(request):
     # Filtrer les CVs par nom_prenom si un terme de recherche est fourni
     cvs = CV.objects.all()
     if search_query:
-        cvs = cvs.filter(nom_prenom__icontains=search_query)
-
+        cvs = cvs.filter(
+        Q(nom_prenom__icontains=search_query) |
+        Q(niveau_etude__icontains=search_query)  # Ajouter cette ligne pour filtrer par niveau d'étude
+    )
     # Trier les CVs par nom_prenom
     cvs = cvs.order_by('nom_prenom')
 
@@ -408,7 +446,8 @@ def Conges(request):
     if search_query:
         conges = conges.filter(
             Q(employe__nom__icontains=search_query) |
-            Q(employe__prenom__icontains=search_query)
+            Q(employe__prenom__icontains=search_query) |
+            Q(reference__icontains=search_query)
         )
 
     # Trier les congés par nom d'employé et date de début
@@ -424,6 +463,95 @@ def Conges(request):
         'search_query': search_query,
         'number': number
     })
+
+from reportlab.lib.colors import grey
+def generate_pdf(request, conge_id):
+    # Retrieve the Conge object
+    conge = get_object_or_404(Conge, pk=conge_id)
+
+    # Create a BytesIO buffer to hold the PDF data
+    buffer = BytesIO()
+
+    # Create a PDF document
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    story = []
+
+    # Styles
+    styles = getSampleStyleSheet()
+    normal = styles['Normal']
+    
+    # Add the three lines at the top-left corner
+    line_style = ParagraphStyle(name='LineStyle', fontSize=12, alignment=0, spaceAfter=10)
+    story.append(Paragraph('.....................', line_style))
+    story.append(Paragraph('.....................', line_style))
+    story.append(Paragraph('.................', line_style))
+    story.append(Spacer(1, 30))  # Increased space between lines and "Agadir le"
+
+    # Adjust the position of the date and the title
+    header_style = ParagraphStyle(name='Header', fontSize=12, alignment=2, spaceAfter=20)
+    header = Paragraph(f'Agadir le : {conge.date_demande.strftime("%d/%m/%Y")}', header_style)
+    story.append(header)
+    story.append(Spacer(1, 30))  # Increased space between "Agadir le" and the title
+
+    # Title with border and background color
+    title_style = ParagraphStyle(name='Title', fontSize=17, alignment=1, spaceAfter=30,
+                                 textColor='black', backgroundColor=grey)
+    # Add border and padding manually using Table
+    
+    
+    title_table = Table([[Paragraph('<b>DECISION DE CONGE</b>', title_style)]],
+                        colWidths=[250],  # Adjust width as needed, reduced width
+                        style=[('BACKGROUND', (0, 0), (-1, -1), grey),
+                               ('TEXTCOLOR', (0, 0), (-1, -1), 'black'),
+                               ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+                               ('BOX', (0, 0), (-1, -1), 0.5, 'black'),  # Reduced border width
+                               ('BOTTOMPADDING', (0, 0), (-1, -1), 20),  # Increased padding at the bottom
+                               ('TOPPADDING', (0, 0), (-1, -1), 10),
+                               ('LEFTPADDING', (0, 0), (-1, -1), 10),
+                               ('RIGHTPADDING', (0, 0), (-1, -1), 10)])
+    story.append(title_table)
+    story.append(Spacer(1,40))   # Increased space between the title and the content
+
+    # Content
+    content_style = ParagraphStyle(name='Content', fontSize=17, spaceAfter=20, alignment=0)
+    content = [
+        Paragraph(f'Reférence : <strong>{conge.reference}</strong>', content_style),
+        Paragraph(f'Mr/Mme <strong>{conge.employe.nom} {conge.employe.prenom}</strong>.', content_style),
+        Paragraph(f'CIN n° <strong>{conge.employe.cni}</strong> Immatriculé CNSS n° <strong>{conge.employe.cnss}</strong>.', content_style),
+        Paragraph(f'Est autorisé(e) à sortir en congé par sa demande pendant la', content_style),
+        Paragraph(f'période allant du <strong>{conge.date_debut.strftime("%d/%m/%Y")}</strong> au <strong>{conge.date_fin.strftime("%d/%m/%Y")}</strong> inclus.', content_style),
+        Paragraph(f'Le nombre de jours de congé sera déduit du congé annuel', content_style),
+        Paragraph(f'non soldé.', content_style),
+    ]
+    story.extend(content)
+    story.append(Spacer(1, 40))  # Increased space between content and signature section
+
+    # Signature
+    signature_style = ParagraphStyle(name='Signature', fontSize=17, alignment=1, spaceAfter=30)
+    signature = Table([
+        [Paragraph('L\'administration', signature_style), Paragraph('L\'intéressé(e)', signature_style)],
+        [Paragraph('..............................', signature_style), Paragraph('..............................', signature_style)]
+    ], colWidths=[250, 250])
+    signature.setStyle(TableStyle([
+        ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, 0), 10),
+        ('BOTTOMPADDING', (0, 0), (-1, 0), 10),
+        ('LEFTPADDING', (0, 1), (-1, 1), 10),
+        ('RIGHTPADDING', (0, 1), (-1, 1), 10),
+    ]))
+    story.append(signature)
+
+    # Build PDF
+    doc.build(story)
+
+    # Move the cursor to the beginning of the buffer
+    buffer.seek(0)
+
+    # Create the HTTP response with the PDF data
+    response = HttpResponse(buffer.getvalue(), content_type='application/pdf')
+    response['Content-Disposition'] = f'inline; filename="conge_{conge_id}.pdf"'
+    return response
 
 def deconnexion(request):
     logout(request)
