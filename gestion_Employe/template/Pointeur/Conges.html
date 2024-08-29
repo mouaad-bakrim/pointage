@@ -88,6 +88,12 @@
         </ul>
        </div>
     <div class="table-wrapper">
+        <a href="{% url 'AjoutConge' %}" class="ajout-link">
+            <button class="ajout">
+                <img src="{% static 'css/images/ajout_conge.png' %}" alt="Icon" class="button-icon">
+                Ajouter Congé
+            </button>
+        </a>
         <div class="controls">
             <!-- Formulaire pour sélectionner le nombre d'éléments à afficher -->
             <form method="GET" action="{% url 'Conges_Dep' %}" class="select-number-form">
